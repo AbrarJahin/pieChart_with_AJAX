@@ -1,14 +1,8 @@
 google.load("visualization", "1", {packages:["corechart"]});
 function drawData()
 {
-  var dataArray =[['Task', 'Hours per Day']];
-  var arr1=['Work','Eat','Commute','Watch TV','Sleep'];
-  var arr2=[11,2,2,2,7]; 
-  for(var n=0; n < arr2.length; n++)
-  { 
-    dataArray.push([arr1[n], parseInt(arr2[n])]);
-  }
-  var data = new google.visualization.arrayToDataTable(dataArray);
+  var data = new google.visualization.arrayToDataTable(getAJAXData('Task','Hours per Day'));
+  //var data = new google.visualization.DataTable(jsonData);
   var options = {
                   title: 'My Daily Activities',
                   is3D: true,
@@ -25,16 +19,34 @@ function drawData()
   var chart = new google.visualization.PieChart(document.getElementById('piechart'));
   chart.draw(data, options);
 }
-//google.setOnLoadCallback(drawData);
+
+function getAJAXData(title_header,value_object)
+{
+  var jsonData = $.ajax({
+                          url: "ajax.php",
+                          dataType: "json",
+                          async: false
+                        }).responseText;
+  /////////////////////////////////////////////
+  var obj = JSON.parse(jsonData);
+  //Received from AJAX is like - {"Work":11,"Eat":2,"Commute":2,"Watch TV":2,"Sleep":7}
+  var dataArray =[[title_header, value_object]];
+
+  for (var key in obj)
+  {
+      dataArray.push([key, parseInt(obj[key])]);
+  }
+  return dataArray;
+}
 
 $(function()
 {
-  console.log("loaded");
+  //console.log("loaded");
   drawData();
 });
 
 $( window ).resize(function()
 {
-  console.log("resize");
+  //console.log("resize");
   drawData();
 });
